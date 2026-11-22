@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#efe6d2">
+<title>알고리즘 거울</title>
+<meta name="description" content="숫자 뒤에 숨은 세상 3편 부록 — 협업 필터링으로 빈칸 채우기, 취향 지도(임베딩)와 필터 버블 모의 실험, 평균의 함정(평균 vs 중앙값), 누구에게 물었나(표본), 숫자 앞에서 세 가지 질문">
+<style>:root{--bg:#efe6d2;--card:#fbf6ea;--card2:#f3ead6;--fg:#2b2418;--mut:#7a6c55;--line:#d9cbb0;--a:#9c2f2f;--gold:#b8862b;--ok:#3d7a4e;--bad:#a83a32;--ink:#1f2a44}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;line-height:1.6}
+[hidden]{display:none!important}
+.wrap{max-width:560px;margin:0 auto;padding:12px 14px 40px}
+h1{font-size:1.2rem;margin:6px 0;font-family:"Noto Serif KR","Nanum Myeongjo","AppleMyungjo","Batang",serif}
+h1 small{display:block;font-size:.76rem;color:var(--mut);font-weight:400;font-family:-apple-system,"Malgun Gothic",sans-serif}
+.tabs{display:flex;gap:5px;margin:10px 0}
+.tabs button{flex:1;padding:9px 2px;border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:10px;font-size:.82rem;font-weight:600}
+.tabs button.on{background:var(--ink);color:#f6efe0;border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 0 #d9cbb055}
+h2{font-size:1rem;margin:2px 0 8px;font-family:"Noto Serif KR","Nanum Myeongjo","AppleMyungjo","Batang",serif}
+.note{font-size:.86rem;color:var(--mut);margin:8px 0 0}
+.note b{color:var(--fg)}
+.btn{padding:11px 14px;border-radius:12px;border:0;background:var(--ink);color:#f6efe0;font-weight:800;font-size:.95rem;flex:1}
+.btn.sec{background:var(--card2);border:1px solid var(--line);color:var(--fg);font-weight:700}
+.btn.sm{flex:none;padding:8px 12px;font-size:.84rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font-size:.84rem}
+.pill.on{border-color:var(--a);background:#f1dcc8}
+.lbl{font-size:.8rem;color:var(--mut);margin:10px 0 4px}
+canvas{display:block;width:100%;border-radius:12px;background:#f6efe0;margin-top:8px;border:1px solid #e3d6bb}
+.say{background:#f4ead4;border-left:3px solid var(--a);border-radius:8px;padding:9px 11px;font-size:.92rem;margin-top:10px}
+.say.q{border-left-color:var(--ink);background:#eae6dc}
+.res{margin-top:10px;font-size:.92rem;border-radius:10px;padding:10px 12px}
+.res.g{background:#e3efe0;border:1px solid #a9c8a8}
+.res.r{background:#f5dedb;border:1px solid #d9a39d}
+.res.y{background:#f5ecd2;border:1px solid #d9c48d}
+.sl{display:grid;grid-template-columns:84px 1fr 62px;gap:8px;align-items:center;font-size:.84rem;margin-top:8px}
+.sl b{text-align:right}
+input[type=range]{width:100%;accent-color:#8a4b2a}
+input[type=text]{flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#fffdf7;color:var(--fg);font-size:.95rem}
+select{padding:7px 8px;border-radius:9px;border:1px solid var(--line);background:#fffdf7;color:var(--fg);font-size:.82rem;max-width:62%}
+.prog{height:6px;border-radius:9px;background:#e6dac0;overflow:hidden}
+.prog div{height:100%;background:var(--a);width:0;transition:width .25s}
+.scene{margin-top:10px;min-height:220px}
+.scene h3{font-size:1rem;margin:0 0 8px;font-family:"Noto Serif KR","Nanum Myeongjo","AppleMyungjo","Batang",serif;color:var(--ink)}
+.orig{font-family:"Noto Serif KR","Nanum Myeongjo","AppleMyungjo","Batang",serif;font-size:1rem;line-height:1.9;background:#fffdf6;border:1px solid #e6d9bd;border-radius:10px;padding:12px 14px;margin:8px 0;color:#2b2418}
+.orig p{margin:0 0 8px}.orig p:last-child{margin:0}
+.bridge{font-size:.88rem;color:var(--mut);margin:6px 0}
+.big{font-size:1.25rem;font-weight:800;text-align:center;letter-spacing:.06em}
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.nums button{border:1px solid var(--line);background:var(--card2);color:var(--fg);border-radius:12px;padding:9px 2px;font-size:.72rem;line-height:1.3}
+.nums button b{display:block;font-size:1.2rem;font-family:"Noto Serif KR","Batang",serif;color:var(--ink)}
+.nums button.on{background:#1f2a44;color:#f6efe0;border-color:#1f2a44}.nums button.on b{color:#f3c77a}
+.flow{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.flow button{flex:1 1 45%;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font-size:.82rem}
+.flow button.on{border-color:var(--a);background:#f1dcc8}
+.opts{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.opts button{text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font-size:.92rem}
+.opts button.right{border-color:#3d7a4e;background:#e3efe0}
+.opts button.wrong{border-color:#a83a32;background:#f5dedb}
+.qi{margin-top:10px}.qi .qq{font-size:.92rem;font-weight:700}
+.sum3{margin-top:14px;background:#1f2a44;color:#f6efe0;border-radius:14px;padding:12px 14px}
+.sum3 ol{margin:4px 0;padding-left:20px;font-size:.92rem}
+.sum3 b{color:#f3c77a}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 16px;border-radius:999px;font-size:.9rem;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+footer{text-align:center;color:var(--mut);font-size:.78rem;margin-top:18px}
+footer a{color:var(--mut)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.stats div{background:var(--card2);border-radius:10px;padding:7px 6px;text-align:center;font-size:.74rem;color:var(--mut)}
+.stats div b{display:block;font-size:1.02rem;color:var(--fg);font-variant-numeric:tabular-nums}
+.tw{overflow:auto;max-height:300px;margin-top:8px;border-radius:10px;border:1px solid var(--line)}
+table.df{border-collapse:collapse;width:100%;font-size:.78rem;font-variant-numeric:tabular-nums;background:#fffdf7}
+table.df th,table.df td{padding:5px 6px;text-align:right;border-bottom:1px solid #eee3cc}
+table.df th{background:#efe4cb;position:sticky;top:0;color:#5a4c34}
+table.df td:first-child,table.df th:first-child{text-align:left}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.8rem;margin-top:6px;color:var(--mut)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.ck{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.ck label{display:flex;gap:10px;align-items:center;background:var(--card2);border-radius:10px;padding:10px 12px;font-size:.92rem}
+.ck input{width:20px;height:20px;accent-color:#9c2f2f}
+.leg{display:flex;align-items:center;gap:4px;font-size:.74rem;color:var(--mut);margin-top:6px;flex-wrap:wrap}
+.leg i{display:inline-block;width:22px;height:10px;border-radius:2px}
+input[type=text]{width:100%}
+table.mx{border-collapse:collapse;width:100%;font-size:.8rem;background:#fffdf7}
+table.mx th,table.mx td{padding:6px 4px;text-align:center;border:1px solid #eee3cc}
+table.mx th{background:#efe4cb;color:#5a4c34;font-weight:600}
+table.mx td.me{background:#f5ecd2}
+table.mx td button{width:100%;border:0;background:none;font-size:1rem;padding:2px}
+table.mx td.pred{color:#9c2f2f;font-weight:800}
+.lines{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.lines button{text-align:left;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font-size:.88rem}
+.lines button i{font-style:normal;display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🪞 알고리즘 거울<small>숫자 뒤에 숨은 세상 3편 부록 · 추천 알고리즘과 데이터의 착시</small></h1>
+<div class="tabs">
+<button data-tab="t1" class="on">① 닮은 사람</button>
+<button data-tab="t2">② 취향 지도</button>
+<button data-tab="t3">③ 숫자 착시</button>
+<button data-tab="t4">④ 세 가지 질문</button>
+</div>
+
+<section id="tab-t1">
+<div class="card">
+<h2>👥 협업 필터링 — 나와 닮은 사람들</h2>
+<p class="note" style="margin-top:0">내 줄의 칸을 눌러 샀는지(✔) 안 샀는지 바꿔 보세요. 알고리즘이 나와 닮은 정도를 계산해 빈칸(?)을 <b>확률</b>로 채웁니다.</p>
+<div class="tw"><table class="mx" id="mx"></table></div>
+<div class="say" id="cfSay"></div>
+<canvas id="simCv"></canvas>
+<p class="note">닮은 정도는 코사인 유사도, 빈칸 점수는 닮은 정도로 가중 평균한 값입니다. 사람과 구매 기록은 앱이 만든 예시입니다.</p>
+</div>
+<div class="card">
+<h2>🎙️ 정말 듣고 있을까</h2>
+<div class="say" style="margin-top:0">휴대폰이 대화를 몰래 녹음해 광고에 쓴다는 증거는 연구에서 확인되지 않았습니다. "대화를 엿들어 광고를 맞춘다"고 홍보했던 미국 미디어 회사의 서비스는 미국 연방거래위원회(FTC) 조사에서 <b>실제로는 대화를 수집하지 않았다</b>고 결론 났고, 과장 광고로 합의금을 내게 되었습니다. 답은 도청보다 평범하고, 그래서 더 정교한 <b>데이터와 확률</b>입니다.</div>
+</div>
+</section>
+
+<section id="tab-t2" hidden>
+<div class="card">
+<h2>🗺️ 취향의 지도와 필터 버블</h2>
+<p class="note" style="margin-top:0">아래 피드에서 끌리는 것을 눌러 보세요. 누를 때마다 내 점(⭐)이 그쪽으로 움직이고, 피드는 내 점에서 가까운 것들로 다시 채워집니다.</p>
+<canvas id="emCv"></canvas>
+<div class="stats"><div>피드 속 주제 수<b id="dv">—</b></div><div>누른 횟수<b id="ck">0</b></div><div>가장 많은 주제<b id="top">—</b></div></div>
+<div class="lines" id="feed"></div>
+<div class="row" style="margin-top:8px"><button class="btn sec" id="hole">🔍 거품에 구멍 내기</button><button class="btn sec" id="emReset">처음부터</button></div>
+<div class="say" id="emSay"></div>
+<p class="note">실제 지도는 축이 수백 개지만, 여기서는 두 축으로 줄였습니다. 내 점이 움직이는 규칙과 콘텐츠 점은 앱이 만든 <b>모의 실험</b>입니다. 필터 버블(엘리 패리저, 2011)이 실제로 얼마나 강한지는 연구마다 결과가 엇갈립니다.</p>
+</div>
+</section>
+
+<section id="tab-t3" hidden>
+<div class="card">
+<h2>💰 평균의 함정</h2>
+<div class="sl"><span>이사 온 사람</span><input type="range" id="rich" min="0" max="5" step="1" value="4"><b id="richV">10억</b></div>
+<canvas id="avCv"></canvas>
+<div class="stats"><div>평균<b id="mA">—</b></div><div>중앙값<b id="mM">—</b></div><div>평균보다 적게 버는 사람<b id="mB">—</b></div></div>
+<div class="say" id="avSay"></div>
+</div>
+<div class="card">
+<h2>🗳️ 누구에게 물었나</h2>
+<canvas id="smCv"></canvas>
+<div class="row" style="margin-top:6px"><button class="pill on" data-sm="site">사이트 인터넷 투표</button><button class="pill" data-sm="feed">내 피드 여론</button><button class="pill" data-sm="rand">고르게 뽑은 1,000명</button></div>
+<div class="say" id="smSay"></div>
+<p class="note">마을 사람 1만 명의 의견과 세 가지 물어보는 방법은 앱이 만든 <b>모의 실험</b>입니다.</p>
+</div>
+</section>
+
+<section id="tab-t4" hidden>
+<div class="card">
+<h2>❓ 숫자 앞에서 세 가지 질문</h2>
+<div id="qz"></div>
+<div class="res y" id="qzRes" hidden></div>
+</div>
+<div class="card">
+<h2>🧭 알고리즘의 주인이 되는 세 습관</h2>
+<div class="ck">
+<label><input type="checkbox"> 가끔 평소 관심 없던 주제를 일부러 검색·구독해 보기</label>
+<label><input type="checkbox"> 자극적인 숫자 앞에서 평균·중앙값, 표본, 축을 묻기</label>
+<label><input type="checkbox"> 떠먹여 주는 피드보다 직접 찾아 들어가는 시간 늘리기</label>
+</div>
+<div class="sum3"><b>오늘의 정리</b><br>① 추천은 도청이 아니라, 나와 닮은 사람들의 선택과 취향의 지도로 계산한 <b>확률</b>이다.<br>② 알고리즘은 내가 반응한 것을 따라가고, 그 결과 <b>거품</b>이 생길 수 있다.<br>③ 숫자 앞에서는 <b>평균과 중앙값, 표본, 축</b>을 묻는다.<br><br>알고리즘이 나를 읽는 만큼, 나도 알고리즘을 읽을 수 있습니다. 첫걸음은 지금 내 화면이 <b>왜 이것을 보여 주는지</b> 한 번 묻는 것입니다.</div>
+</div>
+</section>
+
+<footer>© 2026 정필 수심명 · <a href="https://blog.naver.com/omyman" target="_blank" rel="noopener">blog.naver.com/omyman</a><br>숫자 뒤에 숨은 세상 3편 부록 · 예시와 모의 실험 자료 · 인터넷 없이 동작 · 아무것도 저장하지 않음</footer>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),1800);}
+let touched=false;document.addEventListener('pointerdown',()=>{touched=true;},{once:true,capture:true});
+const vib=n=>{if(!touched)return;try{navigator.vibrate&&navigator.vibrate(n);}catch(e){}};
+function prep(cv,ratio){const dpr=Math.min(2,window.devicePixelRatio||1),w=cv.clientWidth||320,h=Math.round(w*ratio);
+  cv.width=w*dpr;cv.height=h*dpr;cv.style.height=h+'px';const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);return{c,w,h};}
+function T(c,s,x,y,col,size,al,bl,wt){c.fillStyle=col;c.font=`${wt||''} ${size||12}px -apple-system,"Malgun Gothic",sans-serif`;c.textAlign=al||'center';c.textBaseline=bl||'middle';c.fillText(s,x,y);}
+function single(sel,attr,fn){$$(sel).forEach(b=>b.onclick=()=>{$$(sel).forEach(x=>x.classList.toggle('on',x===b));vib(8);fn(b.dataset[attr]);});}
+function rr(c,x,y,w,h,r){r=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+const INK='#1f2a44',RED='#9c2f2f',MU='#7a6c55',PAPER='#f6efe0',OKC='#3d7a4e',GOLD='#b8862b';
+const fmt=n=>Math.round(n).toLocaleString('ko-KR');
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+/* ---------- ① 협업 필터링 ---------- */
+const ITEMS=['🥾 등산화','⛺ 텐트','🪑 캠핑의자','📕 요리책','🧘 요가매트','🎣 낚싯대'];
+const PEOPLE={A:[1,1,1,0,0,1],B:[1,1,1,0,0,0],C:[0,0,0,1,1,0],D:[0,1,0,1,1,0]};
+let me=[1,1,null,0,null,null];// null = 모름(?)
+const cos=(a,b)=>{let d=0,na=0,nb=0;a.forEach((v,i)=>{const x=v===null?0:v;d+=x*b[i];na+=x*x;nb+=b[i]*b[i];});return na&&nb?d/Math.sqrt(na*nb):0;};
+function cfDraw(){const sim=Object.fromEntries(Object.entries(PEOPLE).map(([k,v])=>[k,cos(me,v)]));
+  const pred=me.map((v,i)=>{if(v!==null)return null;let s=0,w=0;Object.entries(PEOPLE).forEach(([k,r])=>{s+=sim[k]*r[i];w+=sim[k];});return w?s/w:0;});
+  let h='<thead><tr><th></th>'+ITEMS.map(t=>`<th>${t.split(' ')[0]}<br><small>${t.split(' ')[1]}</small></th>`).join('')+'<th>닮음</th></tr></thead><tbody>';
+  h+='<tr><th>나</th>'+me.map((v,i)=>`<td class="me ${v===null?'pred':''}"><button data-i="${i}">${v===1?'✔':v===0?'·':Math.round(pred[i]*100)+'%'}</button></td>`).join('')+'<td>—</td></tr>';
+  Object.entries(PEOPLE).forEach(([k,r])=>{h+=`<tr><th>${k}</th>`+r.map(v=>`<td>${v?'✔':'·'}</td>`).join('')+`<td><b>${sim[k].toFixed(2)}</b></td></tr>`;});
+  $('#mx').innerHTML=h+'</tbody>';
+  $$('#mx td.me button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;me[i]=me[i]===null?1:me[i]===1?0:null;vib(8);cfDraw();});
+  const best=pred.map((p,i)=>[p,i]).filter(x=>x[0]!==null).sort((a,b)=>b[0]-a[0])[0];
+  const near=Object.entries(sim).sort((a,b)=>b[1]-a[1]);
+  $('#cfSay').innerHTML=best?`나와 가장 닮은 사람은 <b>${near[0][0]}</b>(${near[0][1].toFixed(2)})와 <b>${near[1][0]}</b>(${near[1][1].toFixed(2)}). 그래서 내 빈칸 중 <b>${ITEMS[best[1]]}</b>를 좋아할 확률을 <b>${Math.round(best[0]*100)}%</b>로 매깁니다. 마음을 읽은 것이 아니라 <b>확률</b>을 계산한 것입니다.`:'빈칸(?)이 없습니다. 칸을 눌러 "?"로 바꿔 보세요.';
+  const{c,w,h:hh}=prep($('#simCv'),.32);c.fillStyle=PAPER;c.fillRect(0,0,w,hh);const L=36,R=w-50;Object.entries(sim).forEach(([k,v],i)=>{const y=8+i*((hh-12)/4);T(c,k,L-10,y+9,INK,12,'right','middle','800');c.fillStyle=v>.6?RED:'#b9a785';c.fillRect(L,y,(R-L)*v,16);T(c,v.toFixed(2),L+(R-L)*v+6,y+9,INK,11,'left');});}
+/* ---------- ② 취향 지도 ---------- */
+const TOP=[['캠핑','#3d7a4e',[.2,.25]],['요리','#b8862b',[.75,.2]],['과학','#2c5f9c',[.8,.75]],['음악','#9a6bb8',[.25,.8]],['뉴스 갑','#9c2f2f',[.42,.48]],['뉴스 을','#d9776a',[.62,.55]]];
+const R2=rng(11);const CONT=[];TOP.forEach(([n,col,[cx,cy]],t)=>{for(let i=0;i<14;i++){const a=R2()*6.28,r=Math.sqrt(R2())*.11;CONT.push({t,x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,id:CONT.length});}});
+const TITLES={0:['초보 캠핑 장비','캠핑 요리','차박 명소','텐트 치는 법'],1:['10분 집밥','제철 반찬','빵 굽기','라면 레시피'],2:['블랙홀 이야기','양자 상식','공룡 화석','우주 망원경'],3:['80년대 가요','기타 연주','클래식 입문','플레이리스트'],4:['갑 편 해설','갑 편 인터뷰','갑 편 분석','갑 편 논평'],5:['을 편 해설','을 편 인터뷰','을 편 분석','을 편 논평']};
+let U={x:.5,y:.45},clicks=0,hist=[];
+const feedOf=()=>CONT.map(c=>({c,d:Math.hypot(c.x-U.x,c.y-U.y)})).sort((a,b)=>a.d-b.d).slice(0,8).map(o=>o.c);
+function emDraw(){const{c,w,h}=prep($('#emCv'),.8);c.fillStyle='#fbf6ea';c.fillRect(0,0,w,h);const S=Math.min(w,h)-20,ox=(w-S)/2,oy=10,X=x=>ox+x*S,Y=y=>oy+y*S;const F=feedOf(),fs=new Set(F.map(o=>o.id));
+  TOP.forEach(([n,col,[cx,cy]])=>T(c,n,X(cx),Y(cy)-S*.14,col,11,'center','middle','800'));
+  CONT.forEach(o=>{c.fillStyle=TOP[o.t][1];c.globalAlpha=fs.has(o.id)?1:.3;c.beginPath();c.arc(X(o.x),Y(o.y),fs.has(o.id)?6:4,0,7);c.fill();});c.globalAlpha=1;
+  const far=Math.hypot(F[F.length-1].x-U.x,F[F.length-1].y-U.y);c.strokeStyle=RED;c.setLineDash([5,4]);c.lineWidth=1.5;c.beginPath();c.arc(X(U.x),Y(U.y),far*S,0,7);c.stroke();c.setLineDash([]);
+  if(hist.length>1){c.strokeStyle='#b8862b88';c.lineWidth=2;c.beginPath();hist.forEach((p,i)=>i?c.lineTo(X(p.x),Y(p.y)):c.moveTo(X(p.x),Y(p.y)));c.stroke();}
+  T(c,'⭐',X(U.x),Y(U.y),RED,18);
+  const ts={};F.forEach(o=>ts[o.t]=(ts[o.t]||0)+1);const nT=Object.keys(ts).length,topT=Object.entries(ts).sort((a,b)=>b[1]-a[1])[0];
+  $('#dv').textContent=nT+'개';$('#ck').textContent=clicks;$('#top').textContent=TOP[topT[0]][0]+` ${topT[1]}/8`;
+  $('#feed').innerHTML=F.map(o=>`<button data-id="${o.id}"><i style="background:${TOP[o.t][1]}"></i>[${TOP[o.t][0]}] ${TITLES[o.t][(o.id%14)%4]} ${Math.floor((o.id%14)/4)+1}편</button>`).join('');
+  $$('#feed button').forEach(b=>b.onclick=()=>{const o=CONT[+b.dataset.id];U.x+=(o.x-U.x)*.5;U.y+=(o.y-U.y)*.5;clicks++;hist.push({...U});vib(8);emDraw();});
+  $('#emSay').innerHTML=clicks===0?'처음에는 내 점이 지도 가운데쯤에 있어 여러 주제가 섞여 보입니다.':nT<=2?`피드 8개가 <b>${nT}개 주제</b>로 좁아졌습니다. 피드 열 개 중 아홉 개가 같은 이야기를 하면 "세상 사람들이 다 이렇게 생각한다"고 믿기 쉽습니다. 알고리즘이 만든 맞춤 거울을 창밖 풍경으로 착각하는 <b>필터 버블</b>입니다.`:`누를 때마다 내 점이 움직이고, 비슷한 것이 계속 올라옵니다. 알고리즘은 속이려는 것이 아니라 <b>내가 반응한 것</b>을 충실히 따라갈 뿐입니다.`;}
+$('#hole').onclick=()=>{const F=feedOf(),ts=new Set(F.map(o=>o.t));const cand=TOP.map((t,i)=>i).filter(i=>!ts.has(i));const t=cand.length?cand[Math.floor(Math.random()*cand.length)]:Math.floor(Math.random()*6);const[cx,cy]=TOP[t][2];U.x+=(cx-U.x)*.45;U.y+=(cy-U.y)*.45;hist.push({...U});vib(15);emDraw();toast(`'${TOP[t][0]}'을(를) 일부러 검색했습니다`);};
+$('#emReset').onclick=()=>{U={x:.5,y:.45};clicks=0;hist=[];emDraw();};
+/* ---------- ③ 숫자 착시 ---------- */
+const RICH=[3000,5000,10000,50000,100000,1000000];const RL=['3천만','5천만','1억','5억','10억','100억'];
+function avDraw(){const k=+$('#rich').value,v=RICH[k];$('#richV').textContent=RL[k];const arr=Array(9).fill(3000).concat([v]),mean=arr.reduce((a,b)=>a+b)/10,s=[...arr].sort((a,b)=>a-b),med=(s[4]+s[5])/2,below=arr.filter(x=>x<mean).length;
+  const won=m=>m>=10000?(m/10000).toFixed(m%10000?2:0).replace(/\.?0+$/,'')+'억':fmt(m)+'만';
+  $('#mA').textContent=won(mean)+' 원';$('#mM').textContent=won(med)+' 원';$('#mB').textContent=below+' / 10명';
+  const{c,w,h}=prep($('#avCv'),.5);c.fillStyle=PAPER;c.fillRect(0,0,w,h);const L=20,R=w-20,B=h-26,Tp=24,mx=Math.max(v,mean)*1.1,bw=(R-L)/10,Y=x=>B-(B-Tp)*Math.sqrt(x/mx);
+  arr.forEach((x,i)=>{c.fillStyle=i===9?RED:INK;c.fillRect(L+i*bw+3,Y(x),bw-6,B-Y(x));T(c,i===9?'🏠':'🙂',L+i*bw+bw/2,B+12,INK,12);});
+  [[mean,RED,'평균'],[med,OKC,'중앙값']].forEach(([m,col,lab])=>{c.strokeStyle=col;c.lineWidth=2;c.setLineDash([6,4]);c.beginPath();c.moveTo(L,Y(m));c.lineTo(R,Y(m));c.stroke();c.setLineDash([]);T(c,`${lab} ${won(m)}`,L+4,Y(m)-8,col,11,'left','middle','800');});
+  T(c,'막대 높이는 √(연봉) 눈금',L,10,MU,9.5,'left');
+  $('#avSay').innerHTML=`연봉 3천만 원인 주민 9명에 연봉 <b>${RL[k]}</b> 원인 사람이 이사 오면 평균은 <b>${won(mean)} 원</b>${k===4?'(원고의 1억 2,700만 원)':''}, 중앙값은 여전히 <b>${won(med)} 원</b>입니다. `+(mean>med*1.5?'평균만 보면 부자 동네 같지만, 열 명 중 <b>'+below+'명</b>이 평균보다 적게 법니다. 둘의 차이가 크면 소수의 아주 큰 값이 평균을 끌어올리고 있다는 신호입니다.':'두 값이 비슷하면 평균도 대표값 노릇을 합니다.');}
+$('#rich').oninput=avDraw;
+const PR=rng(7),POP=[];for(let i=0;i<10000;i++){const g=PR();const site=g<.25,like=g<.15?.85:g<.5?.55:.3;POP.push({site:site,clus:g<.12,yes:PR()<like});}
+let sm='site';
+function smDraw(){let samp;const R3=rng(3);if(sm==='site')samp=POP.filter(p=>p.site);else if(sm==='feed')samp=POP.filter(p=>p.clus);else{samp=[];for(let i=0;i<1000;i++)samp.push(POP[Math.floor(R3()*POP.length)]);}
+  const yes=samp.filter(p=>p.yes).length/samp.length,truth=POP.filter(p=>p.yes).length/POP.length;
+  const{c,w,h}=prep($('#smCv'),.36);c.fillStyle=PAPER;c.fillRect(0,0,w,h);const L=96,R=w-60;[['마을 전체 (정답)',truth,INK],[{site:'사이트 투표',feed:'내 피드',rand:'고르게 1,000명'}[sm],yes,sm==='rand'?OKC:RED]].forEach(([lab,v,col],i)=>{const y=14+i*((h-20)/2);T(c,lab,L-8,y+14,col,11,'right','middle','700');c.fillStyle='#e6dac0';c.fillRect(L,y,R-L,28);c.fillStyle=col;c.fillRect(L,y,(R-L)*v,28);T(c,Math.round(v*100)+'% 찬성',L+(R-L)*v+6,y+14,INK,11,'left','middle','800');});
+  $('#smSay').innerHTML=sm==='site'?`그 사이트에 자주 오는 <b>${fmt(samp.length)}명</b>만 답했더니 찬성이 <b>${Math.round(yes*100)}%</b>. 마을 전체(${Math.round(truth*100)}%)와 크게 다릅니다. 인터넷 투표 순위는 <b>그 사이트에 오는 사람들</b>의 생각입니다.`:sm==='feed'?`내 피드에 보이는 사람들, 곧 <b>나와 닮은 ${fmt(samp.length)}명</b>의 찬성은 <b>${Math.round(yes*100)}%</b>. 내 피드 여론은 세상의 여론이 아닙니다.`:`마을 전체에서 <b>고르게</b> 1,000명을 뽑았더니 ${Math.round(yes*100)}%로 정답(${Math.round(truth*100)}%)에 가깝습니다. 숫자는 <b>많이</b> 묻는 것보다 <b>고르게</b> 묻는 것이 중요합니다.`;}
+single('[data-sm]','sm',v=>{sm=v;smDraw();});
+/* ---------- ④ 질문 ---------- */
+const QZ=[['"우리 동네 평균 연봉 1억 넘어!" 먼저 물을 것은?',['평균인가 중앙값인가','동네 이름이 뭔가','기사 사진이 멋진가'],0],['"인터넷 투표 결과 국민 90%가 찬성" 먼저 물을 것은?',['투표 버튼 색','누구에게 물은 숫자인가','댓글 수'],1],['두 막대가 다섯 배 차이 나 보이는 그래프. 먼저 볼 것은?',['그래프 제목 글꼴','세로축이 어디서 시작하나','막대 색깔'],1],['캠핑 얘기를 한 날 캠핑 광고가 떴다. 가장 그럴듯한 설명은?',['휴대폰이 대화를 녹음했다','검색·위치·닮은 사람들의 데이터로 확률을 계산했다','우연일 리 없다, 도청이다'],1]];
+const qa=[];$('#qz').innerHTML=QZ.map((q,i)=>`<div class="qi"><div class="qq">${i+1}. ${q[0]}</div><div class="opts" id="q${i}">${q[1].map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div></div>`).join('');
+QZ.forEach((q,i)=>$$(`#q${i} button`).forEach(b=>b.onclick=()=>{if(qa[i]!==undefined)return;const j=+b.dataset.j;qa[i]=j===q[2];$$(`#q${i} button`).forEach(x=>x.className=+x.dataset.j===q[2]?'right':x===b?'wrong':'');vib(qa[i]?[20,30,40]:60);
+  if(qa.filter(x=>x!==undefined).length===QZ.length){const s=qa.filter(Boolean).length;$('#qzRes').hidden=false;$('#qzRes').className='res '+(s===QZ.length?'g':'y');$('#qzRes').innerHTML=`${QZ.length}문항 중 <b>${s}</b>개. 평균·중앙값, 표본, 축 — 이 세 질문만 물어도 숫자가 하는 말을 훨씬 정확하게 들을 수 있습니다.`;}}));
+$$('.ck input').forEach(x=>x.onchange=()=>vib(8));
+/* ---------- 공통 ---------- */
+function redraw(){if(!$('#tab-t1').hidden)cfDraw();if(!$('#tab-t2').hidden)emDraw();if(!$('#tab-t3').hidden){avDraw();smDraw();}}
+function show(t){$$('.tabs button').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));['t1','t2','t3','t4'].forEach(k=>$('#tab-'+k).hidden=k!==t);redraw();window.scrollTo(0,0);}
+$$('.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.tab));
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(redraw,120);});
+redraw();
+
+})();
+</script>
+</body>
+</html>
